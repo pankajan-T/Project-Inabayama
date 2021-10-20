@@ -15,7 +15,8 @@ def video():
         cv2.imshow('Input', frame)
 
         c = cv2.waitKey(1)
-        if c == 27:
+        if isinstance(c, int) and c!=-1:
+            print(c)
             break
 
     webcam.release()
@@ -40,3 +41,5 @@ def take_photo():
     # releasing all windows
 
     cv2.destroyAllWindows()
+
+take_photo()
