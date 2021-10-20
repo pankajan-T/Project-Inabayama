@@ -4,6 +4,12 @@ from tkinter import Pack, font
 from tkinter.constants import BOTTOM, CENTER, LEFT, RIGHT, TOP
 import take_picture as tk_pic
 import time
+import cv2
+from PIL import Image, ImageTk
+from face_recognition.api import face_distance
+import numpy as np
+import face_recognition
+
 
 
 acc_name_text=""
@@ -13,7 +19,8 @@ alp=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s'
 
 
 def Creat_acc():
-    welcome.destroy()
+    
+    welcome.destroy() 
     global Entry
     global acc_name_text
     acc_name_text=""
@@ -116,17 +123,33 @@ def Creat_acc():
 
 def Creat_acc_photo():
     global acc_pic
+    global label
+    global cap
     global acc_name_text
     acc_pic=tkinter.Tk()
+    label =tkinter.Label(acc_pic)
+    label.pack()
+    cap= cv2.VideoCapture(0)
     acc_pic.title("Inabayama")
     acc_pic.attributes('-fullscreen',True)  #makes the window fullscreen
     tkinter.Button(text="Cancel",command=return_welcome2).place(x=1400, y=750)
     tkinter.Label(acc_pic,text=f'{acc_name_text}',font="Times 16 bold",height=13).pack(side=TOP)
     tkinter.Button(text="Camera On",font="Times 16 bold",command=tk_pic.video).place(x=700, y=500)
     tkinter.Button(text="Take picture",font="Times 16 bold",command=tk_pic.take_photo).place(x=700, y=600)
+    show_frames()
+    
     acc_pic.mainloop()
 
-    
+def show_frames():
+   # Get the latest frame and convert into Image
+   cv2image= cv2.cvtColor(cap.read()[1],cv2.COLOR_BGR2RGB)
+   img = Image.fromarray(cv2image)
+   # Convert image to PhotoImage
+   imgtk = ImageTk.PhotoImage(image = img)
+   label.imgtk = imgtk
+   label.configure(image=imgtk)
+   # Repeat after an interval to capture continiously
+   label.after(20, show_frames)   
   
 def add_a():
     global acc_name_text
