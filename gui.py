@@ -9,6 +9,8 @@ from PIL import Image, ImageTk
 from face_recognition.api import face_distance
 import numpy as np
 import face_recognition
+import pandas as pd
+from datetime
 
 
 
@@ -279,8 +281,12 @@ while True:
 
     def save_pic():
         cv2.imwrite(f'H:\Face_recognition\photos\{acc_name_text}.png', frame)
-        
+        now = datetime.datetime.now()
         #os.system("gui.py")
+        df = pd.read_csv('data.csv')
+        print(df.to_string())
+        data = pd.DataFrame([[acc_name_text,str(now),str(now),"NA"]])
+        data.to_csv('data.csv', mode='a', index=False, header=False)
         acc_pic.destroy()
         # releasing the webcam
 
@@ -515,7 +521,9 @@ while True:
 
 
     def Use_Cell():
+        data = pd.read_csv('H:\Face_recognition\data.csv',index_col='Name')
         is_face=[]
+        cell=0
         Entry.destroy()
         global use_cell
         use_cell=tkinter.Tk()
@@ -523,30 +531,38 @@ while True:
         use_cell.attributes('-fullscreen',True)  #makes the window fullscreen
         tkinter.Button(text="Cancel",command=use_cell.destroy).place(x=1400, y=750)
         
-        #for i in range(5):
-        ret, frame = cap.read()
+        for i in range(5):
+            time.sleep(0.5)
+            ret, frame = cap.read()
             #print (ret)
 
             # releasing the webcam
 
             
-        cv2.imwrite(f'H:\Face_recognition\photos\opencv.png', frame)
+            cv2.imwrite(f'H:\Face_recognition\photos\opencv{i}.png', frame)
         actimage = face_recognition.load_image_file(f'H:\Face_recognition\photos\{acc_name_text}.png')
         actimage = cv2.cvtColor(actimage,cv2.COLOR_BGR2RGB)
         faceLoc = face_recognition.face_locations(actimage)[0]
         encodeact = face_recognition.face_encodings(actimage)[0]
         cv2.rectangle(actimage,(faceLoc[3],faceLoc[0]),(faceLoc[1],faceLoc[2]),(200,1000,200),2)
-        #for j in range(5):
+        for j in range(5):
             
-        test = face_recognition.load_image_file(f'H:\Face_recognition\photos\opencv.png')
-        test = cv2.cvtColor(test,cv2.COLOR_BGR2RGB)
-            #faceLoctest = face_recognition.face_locations(test)[0]
-        encodetest = face_recognition.face_encodings(test)[0]
+            test = face_recognition.load_image_file(f'H:\Face_recognition\photos\opencv{j}.png')
+            test = cv2.cvtColor(test,cv2.COLOR_BGR2RGB)
+            faceLoctest = face_recognition.face_locations(test)[0]
+            encodetest = face_recognition.face_encodings(test)[0]
+            
             #cv2.rectangle(test,(faj,ceLoc[3],faceLoc[0]),(faceLoc[1],faceLoc[2]),(200,1000,200),2)
-        results = face_recognition.compare_faces(encodeact,encodetest)
-            #is_face.append(results)
+            results = face_recognition.compare_faces([encodeact],encodetest)
+            is_face.append(results)
+            cell+=results[0]
+        if cell>3:
+            now = datetime.datetime.now()
+            data.loc[f'{acc_name_text}','last used']=str(now)
+            data.to_csv('H:\Face_recognition\data.csv')
+
         
-        print(results)
+        print(is_face)
 
 
         
